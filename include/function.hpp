@@ -1,43 +1,35 @@
 #include <iostream>
 #include <cstring>
+#include <unistd.h>
+#include <climits>
 
 const int MAX_SIZE = 2048;
+const unsigned long DISTANCE = ULONG_MAX;
 
-int Expansion(unsigned long int *&keys, char **&values, size_t &capacity) {
-    size_t old_cap = capacity;
-    capacity *= 2;
-    unsigned long int* temp_keys = (unsigned long int*)realloc(keys, sizeof(unsigned long int) * capacity);
-    if (temp_keys == nullptr) {
-        fprintf(stderr, "Memory allocation error: keys.\n");
-        free(keys);
-        return 1;
-    } else {
-        keys = temp_keys;
-    }
-    char** temp_values = (char**)realloc(values, sizeof(char*) * capacity);
-    if (temp_values == nullptr) {
-        fprintf(stderr, "Memory allocation error: values\n");
-        // Освобождение ранее выделенной памяти перед выходом
-        for (int i = 0; i < old_cap; ++i) {
-            free(values[i]);
-        }
-        free(values);
-        return 1;
-    }
-    for (size_t i = old_cap; i < capacity; ++i) {
-        values[i] = (char*)malloc(sizeof(char) * MAX_SIZE);
-        if (values[i] == nullptr) {
-        fprintf(stderr, "Memory allocation error: strings\n");
-        // Освобождение ранее выделенной памяти перед выходом
-        for (int j = 0; j < i; ++j) {
-            free(values[j]);
-        }
-        free(values);
-        return 1;
-        }
-        memset(values[i], '\0', MAX_SIZE);
-    }
-    return 0;
-}
+class TElem {
+    private:
+        unsigned long key;
+        char val[MAX_SIZE] {'\0'};
+    public:
+        TElem() = default;
+        ~TElem() = default;
 
-int Inputing()
+        unsigned long GetKey() const;
+        const char* GetVal() const;
+        void SetKey(unsigned long &newkey);
+        void SetVal(char newval[]);
+        void PrintVal();
+};
+
+bool Inputing(TElem *&data, size_t num);
+
+class TBucket {
+public:
+    TElem* content {nullptr};
+    size_t count {0};
+
+    bool AddItem(TElem& item);
+    void Sort();
+};
+
+bool BucketSort(TElem *&data, size_t num);
